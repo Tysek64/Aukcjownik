@@ -1,0 +1,23 @@
+Filip Janas 280562
+Krzysztof Żałobka 280454
+Podstawy Internetu Rzeczy - System do licytacji przez terminal oparty na Raspberry Pi
+
+System wykorzystywać będzie karty RFID przypisane do użytkowników do przeprowadzania licytacji.
+Terminale będą łączyć się z centralnym serwerem, aby pobierać aktualny stan licytacji oraz wysyłać informacje o jej przebiegu.
+Użytkownik, przykładając swoją zarejestrowaną kartę do terminala może wziąć udział w licytacji.
+
+Będzie możliwe przechowywanie następujących informacji o użytkowniku:
+ - pseudonim (nazwa użytownika)
+ - numer zarejestrowanej karty
+ - opcjonalnie limit wydatków
+
+Będzie możliwe przechowywanie następujących informacji o licytacji:
+ - nazwa
+ - aktualna kwota
+ - minimalna kwota przebicia
+ - aktualny zwycięzca
+ - czas końca
+
+Wybór kwoty licytacji będzie możliwy za pomocą encodera na terminalu (z uwzględnieniem minimalnej kwoty przebicia)
+
+Możliwe będzie połączenie wielu terminali z serwerem; wtedy pojawi się na nich zsynchronizowany stan licytacji.
