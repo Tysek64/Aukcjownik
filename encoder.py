@@ -7,14 +7,11 @@ import time
 from PIL import Image, ImageDraw, ImageFont
 import lib.oled.SSD1331 as libOled
 
-def initDisplay():
+if __name__ == '__main__':
     disp = libOled.SSD1331()
     disp.Init()
     disp.clear()
-
-    return disp
-
-def oledDisplay(disp):
+    
     image1 = Image.new("RGB", (disp.width, disp.height), "WHITE")
     draw = ImageDraw.Draw(image1) 
 
@@ -23,11 +20,9 @@ def oledDisplay(disp):
     draw.text((40,0), f'5 '+chr(176)+'C', font=font, fill='BLACK')
 
     disp.ShowImage(image1, 0, 0)
+    time.sleep(2)
 
-if __name__ == '__main__':
-    disp = initDisplay()
-
-    while 1:
-        oledDisplay(disp)
+    disp.clear()
+    disp.reset()
 
     GPIO.cleanup()
