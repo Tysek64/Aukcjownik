@@ -33,7 +33,6 @@ def process_message(client, userdata, message):
         if card_number in users.keys():
             print(f'User {users[card_number]} checked in')
             auction_state["current_bidder"] = users[card_number]
-            auction_state["current_price"] += 10
             client.publish('auction/response/price', f'{auction_state["current_price"]}')
             client.publish('auction/response/bidder', f'{auction_state["current_bidder"]}')
 

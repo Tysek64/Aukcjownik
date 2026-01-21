@@ -13,6 +13,7 @@ import paho.mqtt.client as mqtt
 
 terminal_id = "T0"
 broker = "localhost"
+#broker = "localhost"
 
 client = mqtt.Client()
 
@@ -23,6 +24,8 @@ auction_state = {
     "current_price": 100,
     "current_bidder": None
 }
+
+current_bid = auction_state['current_price']
 
 def buzzer():
     global lastBuzzer
@@ -42,7 +45,7 @@ def rfidRead():
             if lastCard != num:
                 print(f"Card read UID: {uid} > {num}")
                 print(f"Time: {datetime.datetime.now()}")
-                client.publish('auction/bid', f'{auction_state["current_price"] + 100}')
+                client.publish('auction/bid', f'{current_bid}')
                 client.publish('card/data', f'{num}')
                 pixels.fill((0, 255, 0))
                 pixels.show()
@@ -78,7 +81,18 @@ def disconnect_from_broker():
     client.loop_stop()
     client.disconnect()
 
+def encEvent(_):
+    global current_bid
+    if GPIO.input(encoderRight):
+        #encoder rotated left
+        current_bid = max(auction_state['current_price'] + 10, current_bid - 10)
+    else:
+        #encoder rotated right
+        current_bid += 10
+    print(current_bid)
+        
 if __name__ == "__main__":
+    GPIO.add_event_detect(encoderLeft, GPIO.FALLING, callback=encEvent, bouncetime=50)
     connect_to_broker()
     pixels = neopixel.NeoPixel(
         board.D18, 8, brightness=1.0/32, auto_write=False)
