@@ -1,59 +1,41 @@
-#!/usr/bin/env python3
+import argparse
+import datetime
+from server.run_auction import run_auction
+from server.user_management import list_users, add_user, delete_user
 
-import paho.mqtt.client as mqtt
-import time
+def users(args):
+    if args.command == 'list':
+        list_users(args.username, args.card_id)
+    elif args.command == 'add':
+        add_user(args.username, args.card_id)
+    elif args.command == 'delete':
+        delete_user(args.username)
 
-# The broker name or IP address.
-broker = "localhost"
-# broker = "127.0.0.1"
-# broker = "10.0.0.1"
+def auction(args):
+    run_auction(args.auction_name, args.start_price, args.end_time, args.min_difference)
 
-users = {
-    "981114580761": "Biała karta",
-    "967700709850": "Krzychu",
-    "769558007531": "Janas"
-}
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        prog='server.py',
+        description='Server for running auctions and managing user database',
+    )
 
-auction_state = {
-    "current_price": 100,
-    "current_bidder": None
-}
+    subparsers = parser.add_subparsers(required=True)
 
-client = mqtt.Client()
+    userManagement = subparsers.add_parser('users')
+    userManagement.set_defaults(func=users)
 
-def process_message(client, userdata, message):
-    message_decoded = (str(message.payload.decode("utf-8"))).split('/')
+    userManagement.add_argument('command', choices=['add', 'list', 'delete'])
+    userManagement.add_argument('--username', '-n', default=None, type=str)
+    userManagement.add_argument('--card_id', '-c', default=None, type=int)
 
-    if message.topic == 'auction/bid':
-        auction_state['current_price'] = int(message_decoded[0])
-    else:
-        card_number = message_decoded[0]
+    runAuction = subparsers.add_parser('auction')
+    runAuction.set_defaults(func=auction)
 
-        print(f"Card: {card_number}")
-        if card_number in users.keys():
-            print(f'User {users[card_number]} checked in')
-            auction_state["current_bidder"] = users[card_number]
-            client.publish('auction/response/price', f'{auction_state["current_price"]}')
-            client.publish('auction/response/bidder', f'{auction_state["current_bidder"]}')
+    runAuction.add_argument('--auction_name', '-n', default=None, type=str)
+    runAuction.add_argument('--start_price', '-p', default=None, type=float)
+    runAuction.add_argument('--end_time', '-t', default=None, type=int)#lambda d: datetime.datetime.strptime(d, '%Y/%m/%d %I:%M'))
+    runAuction.add_argument('--min_difference', '-d', default=None, type=float)
 
-
-def connect_to_broker():
-    client.connect(broker)
-    client.on_message = process_message
-
-    client.loop_start()
-    client.subscribe('card/data')
-    client.subscribe('auction/bid')
-
-
-def disconnect_from_broker():
-    client.loop_stop()
-    client.disconnect()
-
-if __name__ == "__main__":
-    connect_to_broker()
-
-    while 1:
-        pass
-
-    disconnect_from_broker()
+    args = parser.parse_args()
+    args.func(args)

@@ -1,5 +1,5 @@
-from db_utils import db_get_users, db_add_user, db_delete_user
-from models import User
+from utils.db_utils import db_get_users, db_add_user, db_delete_user
+from data.models import User
 from sqlite3 import IntegrityError
 
 def list_users(username=None, card_id=None):
