@@ -67,8 +67,12 @@ def run_auction(auction_name=None, start_price=None, end_time=None, min_differen
 
     # await bids
     # should check if time is over for auction
+    time_message_thread = threading.Thread(target=broadcast_remaining_time)
+    time_message_thread.start()
     time.sleep(60 * end_time)
-    publish_message('auction/end', '')
+    can_start = False
+    publish_message('auction/end', json.dumps({'bidder': current_top_bidder, 'bid_value': current_top_bid}))
+    time_message_thread.join()
 
     print(f'=== ENDING AUCTION FOR {current_auction.auction_name} ===')
     print(f'The winner is {current_top_bidder} for {current_top_bid}!\nCongratulations!')
@@ -100,7 +104,7 @@ def process_message(client, userdata, message):
             else:
                 print(f'However, the current top bid is {current_top_bid} from {current_top_bidder}\n')
         else:
-            print(f'Unknown user with card {card_number} checked in!')
+            print(f'Unknown user with card {bid_info["card_id"]} checked in!')
 
 def advertise_auction():
     global current_auction
@@ -114,5 +118,11 @@ def await_start_input():
     global can_start
     command = ''
     while command != 's':
-        command = input("Type 's' to start auction ")
+        command = input("Type 's' to start auction\n\n")
     can_start = True
+
+def broadcast_remaining_time():
+    global current_auction
+    for i in range(6 * current_auction.end_time):
+        publish_message('auction/time', 60 * current_auction.end_time - 10 * i)
+        time.sleep(10)

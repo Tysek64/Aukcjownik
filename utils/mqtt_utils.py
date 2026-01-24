@@ -1,6 +1,7 @@
 import paho.mqtt.client as mqtt
 from data.models import Auction, User
 import time
+import uuid
 
 broker = "192.168.0.228"
 
@@ -9,7 +10,7 @@ client = None
 def create_client(name):
     global client
     if client is None:
-        client = mqtt.Client(name)
+        client = mqtt.Client(f'{name}_{uuid.uuid4()}')
     else:
         raise AssertionError('client already created')
 
