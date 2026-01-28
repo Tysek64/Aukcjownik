@@ -3,7 +3,7 @@ from data.models import Auction, User
 import time
 import uuid
 
-broker = "192.168.0.228"
+broker = "10.182.24.183"
 
 client = None
 
